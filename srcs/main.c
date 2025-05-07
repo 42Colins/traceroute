@@ -14,11 +14,10 @@ int main(int argc, char **argv)
 	}
 	t_root *data = initTraceroute(argc, argv);
 	printf("Traceroute to %s (%s) with max %u hops\n", data->dest, data->dest_ip, data->hops_max);
-    while (!data->destReached)
+    while (!data->destReached && data->ttl <= data->hops_max)
     {
-		printf("Sending packet to %s with TTL %u\n", data->dest, data->ttl);
-		sendPacket(data);
-		receivePacket(data);
+		doHop(data);
+		printHop(data);
 		data->ttl++;
 		data->starting_port++;
     }
@@ -26,3 +25,21 @@ int main(int argc, char **argv)
     close(data->recvsocketFd);
 	return 0;
 }
+ void doHop(t_root *data)
+ {
+	data->timeArray = malloc(sizeof(double) * data->probes);
+	unsigned int runner = 0;
+	struct timeval start_time;
+	struct timeval end_time;
+	while (runner < data->probes && !data->destReached)
+	{
+		if (gettimeofday(&start_time, NULL) == -1)
+			return ;
+		sendPacket(data);
+		receivePacket(data);
+		gettimeofday(&end_time, NULL);
+		data->timeArray[runner] = (((end_time.tv_sec * 1000000) + end_time.tv_usec)) - ((start_time.tv_sec * 1000000) + start_time.tv_usec);
+		runner++;
+	}
+	// free(data->timeArray);
+ }
