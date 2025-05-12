@@ -33,7 +33,6 @@ t_root *initTraceroute(int argc, char **argv)
 	data->hops_max = 30;
 	data->packet_size = 60;
 	data->starting_port = 33434;
-    // ft_memset(data->timeArray, 0, sizeof(data->timeArray));
 	initRecvSocket(data);
 	initSendSocket(data);
 	return data;
@@ -41,19 +40,14 @@ t_root *initTraceroute(int argc, char **argv)
 
 void initSendSocket(t_root *data)
 {
-    // Create UDP socket
     data->sendsocketFd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (data->sendsocketFd < 0) {
         perror("Error creating send socket");
         free(data);
         exit(1);
     }
-    
-    // Set up the destination
     ft_memset(&data->send_addr, 0, sizeof(data->send_addr));
     data->send_addr.sin_family = AF_INET;
-    
-    // Convert destination IP string to binary form
     if (inet_pton(AF_INET, data->dest_ip, &data->send_addr.sin_addr) <= 0) {
         perror("Invalid destination IP address");
         free(data);
@@ -63,7 +57,6 @@ void initSendSocket(t_root *data)
 
 void initRecvSocket(t_root *data)
 {
-    // Create raw ICMP socket
     data->recvsocketFd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (data->recvsocketFd < 0) {
         perror("Error creating receive socket");
@@ -71,11 +64,9 @@ void initRecvSocket(t_root *data)
         exit(1);
     }
     
-    // Set receive socket options
     int on = 1;
     if (setsockopt(data->recvsocketFd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
         perror("Error setting SO_REUSEADDR");
-        // Not fatal, continue
     }
     
     struct timeval tv;

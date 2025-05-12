@@ -29,20 +29,23 @@ typedef struct s_root
 	unsigned int probes;
 	int recvsocketFd;
 	int sendsocketFd;
-	char *current_ip;
+	char **current_ip;
 	struct sockaddr_in recv_addr;
 	struct sockaddr_in send_addr;
 	double *timeArray;
 	char *hostname;
+	unsigned int runner;
 }	t_root;
 
 
 // Main.c
 void	doHop(t_root *data);
+void	initCurrentIp(t_root *data);
 
 // Print.c
 bool	isTimeout(t_root *data);
 void	printHop(t_root *data);
+bool	isNewIp(t_root *data, unsigned int i);
 
 // Init.c
 t_root	*initTraceroute(int argc, char **argv);
@@ -58,5 +61,9 @@ char 	*getHostnameFromIp(const char *ip_addr);
 
 // Udp.c
 void	initUdpPacket(t_root *data);
+
+// Free.c
+void	freeHop(t_root *data);
+
 
 #endif

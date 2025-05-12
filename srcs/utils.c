@@ -52,21 +52,23 @@ bool receivePacket(t_root *data)
             router_ip = ft_strdup(inet_ntoa(ip_header->ip_src));
         }
         if (router_ip) {
-            if (data->current_ip)
-                free(data->current_ip);
-            data->current_ip = router_ip;
+            if (data->current_ip[data->runner])
+            {
+                free(data->current_ip[data->runner]);
+            }
+            data->current_ip[data->runner] = router_ip;
         }
     }
-    if (!data->current_ip) {
+    if (!data->current_ip[data->runner]) {
         perror("Failed to get router IP");
         exit(1);
     }
-    if (ft_strcmp(data->current_ip, data->dest_ip) == 0) {
+    if (ft_strcmp(data->current_ip[data->runner], data->dest_ip) == 0) {
         data->destReached = true;
     }
     if (data->hostname)
         free(data->hostname);
-    data->hostname = getHostnameFromIp(data->current_ip);
+    data->hostname = getHostnameFromIp(data->current_ip[data->runner]);
     return true;
 }
 
@@ -98,9 +100,7 @@ char *getHostnameFromIp(const char *ip_addr)
     }
     int flags = 0;
     
-    if (getnameinfo((struct sockaddr*)&sa, sizeof(sa), 
-                  hostname, NI_MAXHOST - 1, 
-                  NULL, 0, flags) == 0) {
+    if (getnameinfo((struct sockaddr*)&sa, sizeof(sa), hostname, NI_MAXHOST - 1, NULL, 0, flags) == 0) {
         return hostname;
     } else {
         ft_strlcpy(hostname, ip_addr, NI_MAXHOST - 1);
